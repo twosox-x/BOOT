@@ -1,0 +1,352 @@
+@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
+:root {
+  --phosphor: #33ff33;
+  --phosphor-dim: #1a991a;
+  --phosphor-glow: rgba(51, 255, 51, 0.4);
+  --bg: #0a0a0a;
+  --screen-bg: #0d1a0d;
+  --glow-x: 50%;
+  --glow-y: 50%;
+  --glow-radius-x: 520px;
+  --glow-radius-y: 200px;
+  --glow-alpha: 0.075;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: clamp(12px, 1.2vw, 14px);
+}
+
+body {
+  min-height: 100vh;
+  background: radial-gradient(circle at top, rgba(51, 255, 51, 0.12), transparent 60%), var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  overflow-x: hidden;
+  position: relative;
+  color: var(--phosphor);
+}
+
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+body::before {
+  background-image:
+    linear-gradient(rgba(51, 255, 51, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(51, 255, 51, 0.04) 1px, transparent 1px);
+  background-size: 120px 120px;
+  animation: grid-shift 30s linear infinite;
+}
+
+body::after {
+  background: linear-gradient(90deg, transparent, rgba(51, 255, 51, 0.15) 50%, transparent);
+  animation: sweep 6s ease-in-out infinite;
+}
+
+.crt-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  z-index: 1;
+}
+
+.frame-line {
+  font-family: 'VT323', 'Courier New', monospace;
+  color: var(--phosphor);
+  text-align: center;
+  text-shadow: 0 0 6px var(--phosphor-glow);
+  margin: 0;
+}
+
+.frame-top {
+  padding-bottom: 0.25rem;
+}
+
+.frame-bottom {
+  padding-top: 0.25rem;
+}
+
+.crt {
+  position: relative;
+  width: min(900px, 100%);
+  background: var(--screen-bg);
+  border-radius: 18px;
+  padding: 2rem;
+  box-shadow:
+    inset 0 0 80px rgba(51, 255, 51, 0.05),
+    0 0 40px rgba(51, 255, 51, 0.15),
+    0 0 100px rgba(51, 255, 51, 0.08);
+  overflow: hidden;
+  max-height: 94vh;
+}
+
+.crt::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.3) 100%);
+  pointer-events: none;
+  border-radius: 18px;
+}
+
+.scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.15),
+    rgba(0, 0, 0, 0.15) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  pointer-events: none;
+  z-index: 10;
+  border-radius: 18px;
+}
+
+.terminal {
+  position: relative;
+  z-index: 1;
+  font-family: 'VT323', 'Courier New', monospace;
+  color: var(--phosphor);
+  text-shadow: 0 0 5px var(--phosphor-glow), 0 0 10px var(--phosphor-glow);
+}
+
+pre {
+  margin: 0;
+  white-space: pre;
+  line-height: 1.3;
+  overflow-x: auto;
+}
+
+.ascii-header {
+  text-align: center;
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+}
+
+.status-bar {
+  margin-bottom: 1rem;
+}
+
+.ticker {
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+.ticker span {
+  display: inline-block;
+  padding-right: 3rem;
+  animation: ticker 14s linear infinite;
+  white-space: nowrap;
+}
+
+.panel-row {
+  display: flex;
+  gap: 1.25rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.panel-row .panel-block {
+  flex: 1;
+  min-width: 240px;
+}
+
+.history-header {
+  margin-bottom: 0;
+}
+
+.history-table {
+  margin-bottom: 1rem;
+  overflow-x: auto;
+}
+
+.tx-entry {
+  display: inline-flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.tx-link {
+  color: #33ffcc;
+  text-decoration: none;
+}
+
+.tx-link:hover {
+  text-decoration: underline;
+}
+
+.footer {
+  margin-top: 0.5rem;
+}
+
+.highlight {
+  color: #66ff66;
+  text-shadow: 0 0 8px rgba(102, 255, 102, 0.8), 0 0 15px rgba(102, 255, 102, 0.5);
+  font-weight: bold;
+}
+
+.countdown {
+  color: #ffff33;
+  text-shadow: 0 0 8px rgba(255, 255, 51, 0.8), 0 0 15px rgba(255, 255, 51, 0.5);
+  font-weight: bold;
+  animation: pulse 1s ease-in-out infinite;
+}
+
+.confirmed {
+  color: #33ff99;
+}
+
+.blink {
+  animation: blink 1s step-start infinite;
+  color: #33ff99;
+}
+
+.cursor {
+  animation: blink 0.7s step-start infinite;
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes flicker {
+  0% { opacity: 0.97; }
+  5% { opacity: 0.95; }
+  10% { opacity: 0.97; }
+  15% { opacity: 0.94; }
+  20% { opacity: 0.98; }
+  100% { opacity: 0.97; }
+}
+
+.terminal {
+  animation: flicker 0.15s infinite;
+}
+
+.blend-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 50;
+  mix-blend-mode: color-burn;
+}
+
+.cursor-highlight {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 40;
+  background: radial-gradient(
+    ellipse var(--glow-radius-x) var(--glow-radius-y) at var(--glow-x) var(--glow-y),
+    rgba(255, 255, 255, var(--glow-alpha)),
+    rgba(255, 255, 255, 0) 100%
+  );
+  transition: background 0.15s ease, opacity 0.15s ease;
+  mix-blend-mode: screen;
+}
+
+.blend-overlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    #111 0px,
+    #111 1px,
+    transparent 2px,
+    transparent 5px
+  );
+  background-size: 100% 5px;
+  opacity: 0.3;
+  animation: lines 2s ease-out infinite;
+}
+
+
+@keyframes grid-shift {
+  0% { background-position: 0 0, 0 0; }
+  100% { background-position: 120px 120px, 120px 120px; }
+}
+
+@keyframes sweep {
+  0% { transform: translateX(-100%); opacity: 0; }
+  20% { opacity: 0.4; }
+  50% { transform: translateX(0); opacity: 0.2; }
+  80% { opacity: 0.4; }
+  100% { transform: translateX(100%); opacity: 0; }
+}
+
+@keyframes ticker {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes lines {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 25px; }
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--screen-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--phosphor-dim);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--phosphor);
+}
+
+@media (max-width: 700px) {
+  html {
+    font-size: 10px;
+  }
+
+  .crt {
+    padding: 1rem;
+    border-radius: 12px;
+  }
+
+  pre {
+    font-size: 0.9rem;
+  }
+}
+
+@media (min-width: 900px) {
+  body {
+    overflow-y: hidden;
+  }
+
+  .crt {
+    padding: 1.5rem;
+  }
+}

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LBP TERMINAL v2.1</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="crt-wrapper">
+      <pre class="frame-line frame-top">╔══════════════════════════════════════════════════════════════════════════════╗</pre>
+      <div class="crt">
+        <div class="scanlines"></div>
+        <div class="terminal">
+<pre class="ascii-header">
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║ ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░║
+║ ░     ░░░░░░░░░     ░░░░░░░░░░     ░░░░░░           ░║
+║ ▒  ▒▒   ▒▒▒▒▒   ▒▒▒▒   ▒▒▒▒▒   ▒▒▒▒   ▒▒▒▒▒▒▒   ▒▒▒▒ ║
+║ ▒  ▒▒▒   ▒▒   ▒▒▒▒▒▒▒▒   ▒   ▒▒▒▒▒▒▒▒   ▒▒▒▒▒   ▒▒▒▒ ║
+║ ▓      ▓▓▓▓   ▓▓▓▓▓▓▓▓   ▓   ▓▓▓▓▓▓▓▓   ▓▓▓▓▓   ▓▓▓▓ ║
+║ ▓  ▓▓▓▓   ▓   ▓▓▓▓▓▓▓▓   ▓   ▓▓▓▓▓▓▓▓   ▓▓▓▓▓   ▓▓▓▓ ║
+║ ▓  ▓▓▓▓▓  ▓▓▓   ▓▓▓▓▓   ▓▓▓▓   ▓▓▓▓▓   ▓▓▓▓▓▓   ▓▓▓▓ ║
+║ █    █   ██████     ██████████     ██████████   ████ ║
+║ ████████████████████████████████████████████████████ ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
+</pre>
+
+<p class="tool-desc">Liquidity Pool Bootstrapping Terminal</p>
+
+<pre class="status-bar">
+┌──────────────────────────────────────────────────────────────────────────────┐
+│  SESSION: <span id="session-id">LBP-CTRL-01</span>  │  STATUS: <span class="blink" id="status-indicator">■</span> <span id="status-label">ONLINE</span>  │  UPTIME: <span id="uptime">47d 12h 33m</span>       │
+└──────────────────────────────────────────────────────────────────────────────┘
+</pre>
+
+<pre class="ticker">
+<span>Ξ FEES CAPTURE ONLINE • CREATOR REWARD STREAM ACTIVE • NEXT INJECTION IN VIEW • ALL EVENTS MIRRORED ON-CHAIN • Ξ FEES CAPTURE ONLINE • CREATOR REWARD STREAM ACTIVE • NEXT INJECTION IN VIEW • ALL EVENTS MIRRORED ON-CHAIN •</span>
+</pre>
+
+<div class="panel-row">
+  <pre class="panel-block funds-panel">
+FUNDS MATRIX
+──────────────────────────────────────
+TOTAL AVAILABLE    ▸ <span class="highlight" id="funds-total">Ξ 1,245.33</span>
+CREATOR FEES       ▸ <span id="funds-creator">Ξ 482.10</span>
+LIQUIDITY RESERVE  ▸ <span id="funds-reserve">Ξ 613.00</span>
+  </pre>
+
+  <pre class="panel-block next-panel">
+NEXT INJECTION
+──────────────────────────────────────
+WINDOW           ▸ <span id="next-timestamp">2026-01-22 14:30 UTC</span>
+COUNTDOWN        ▸ <span id="countdown" class="countdown">██:██:██</span>
+AMOUNT           ▸ <span id="next-amount">Ξ 250.00</span>
+EXECUTION MODE   ▸ <span id="execution-mode">AUTO</span>
+  </pre>
+</div>
+
+<pre class="history-table" id="history-log" aria-live="polite">
+╔══════════════════════╦════════════╦════════════╦════════════════════════════╗
+║      TIMESTAMP       ║   AMOUNT   ║   STATUS   ║          TX HASH           ║
+╠══════════════════════╬════════════╬════════════╬════════════════════════════╣
+║  WAITING FOR DATA    ║     --     ║     --     ║  --                        ║
+╚══════════════════════╩════════════╩════════════╩════════════════════════════╝
+</pre>
+
+<pre class="footer">
+┌──────────────────────────────────────────────────────────────────────────────┐
+│  [LOG] MIRRORED ON-CHAIN  │  [AUDIT] IMMUTABLE  │  [MODE] OBSERVE-ONLY        │
+└──────────────────────────────────────────────────────────────────────────────┘
+> STREAM READY_<span class="cursor">█</span>
+</pre>
+
+        </div>
+      </div>
+      <pre class="frame-line frame-bottom">╚══════════════════════════════════════════════════════════════════════════════╝</pre>
+    </div>
+    <div class="cursor-highlight"></div>
+    <div class="blend-overlay"></div>
+    <script src="script.js"></script>
+  </body>
+</html>
