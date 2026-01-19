@@ -42,7 +42,7 @@ All fields are optional partial updates. Timestamps should be ISO strings so the
 The page sets default placeholder values and immediately starts the countdown loop. When your backend payload arrives, call the update helpers above. Example:
 
 ```js
-fetch("/api/lbp/state")
+fetch("/api/lbp-cycle/state")
   .then((res) => res.json())
   .then((data) => {
     const {

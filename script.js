@@ -13,6 +13,71 @@ const historyLogEl = document.getElementById("history-log");
 
 let countdownTarget = new Date("2026-01-22T14:30:00Z");
 
+const SAMPLE_STATUS_RESPONSE = {
+  "service": {
+    "isRunning": true,
+    "nextCycleTime": 1735689600000,
+    "timeUntilNextCycle": "32m 15s",
+    "timeUntilNextCycleMs": 1935000,
+    "cycleIntervalMinutes": 60,
+    "tokenMint": "7HcZz4segTW8rLM6m5bR7ZQ8KamTm1MJ3jhdDNirpump",
+    "poolAddress": "8xKXTG2wJ4Qbd7E1F4Y5L9vN3mP6qR2sT1uV4wX7yZ9aB",
+    "currentCycle": null
+  },
+  "latestCycle": {
+    "cycleNumber": 12,
+    "startedAt": "2024-12-31T14:00:00.000Z",
+    "completedAt": "2024-12-31T14:03:45.000Z",
+    "status": "completed",
+    "withdrawnSol": 2.456789,
+    "tokensBought": "1250000000",
+    "solForSwap": 1.203394,
+    "solForLp": 1.203394,
+    "lpTokensReceived": null,
+    "swapTxSignature": "5KJ8mN3pQ7rT2vW9xY4zA6bC1dE8fG2hI5jL7kM9nO3qR6sT4uV8wX1yZ5aB2cD",
+    "depositTxSignature": "3mP6qR2sT1uV4wX7yZ9aB8xKXTG2wJ4Qbd7E1F4Y5L9vN3mP6qR2sT1uV4wX7yZ",
+    "errorMessage": null,
+    "deposits": [
+      {
+        "txSignature": "3mP6qR2sT1uV4wX7yZ9aB8xKXTG2wJ4Qbd7E1F4Y5L9vN3mP6qR2sT1uV4wX7yZ",
+        "solAmount": 1.203394,
+        "tokenAmount": "1250000000",
+        "lpTokens": "0",
+        "poolAddress": "8xKXTG2wJ4Qbd7E1F4Y5L9vN3mP6qR2sT1uV4wX7yZ9aB",
+        "tokenMint": "7HcZz4segTW8rLM6m5bR7ZQ8KamTm1MJ3jhdDNirpump",
+        "createdAt": "2024-12-31T14:03:45.123Z"
+      }
+    ]
+  },
+  "totals": {
+    "totalCycles": 12,
+    "totalWithdrawnSol": 28.345678,
+    "totalTokensBought": "14500000000",
+    "totalLpTokensReceived": "0",
+    "totalDeposits": 12,
+    "totalSolDeposited": 14.172839,
+    "totalTokensDeposited": "14500000000",
+    "totalLpTokensDeposited": "0"
+  },
+  "statistics": {
+    "cycles": {
+      "total": 12,
+      "totalWithdrawnSol": 28.345678,
+      "totalTokensBought": "14500000000",
+      "totalLpTokens": "0",
+      "latestCycleNumber": 12,
+      "firstCycleAt": "2024-12-30T14:00:00.000Z",
+      "lastCycleAt": "2024-12-31T14:00:00.000Z"
+    },
+    "deposits": {
+      "total": 12,
+      "totalSolDeposited": 14.172839,
+      "totalTokensDeposited": "14500000000",
+      "totalLpTokensDeposited": "0"
+    }
+  }
+};
+
 const formatTimestamp = (date) =>
   date.toISOString().replace("T", " ").replace(".000Z", " UTC");
 
@@ -107,6 +172,72 @@ const applyHistory = (entries) => {
   historyLogEl.innerHTML = buildHistoryTable(entries);
 };
 
+const normalizeHistoryEntries = (latestCycle = {}) => {
+  const entries = [];
+  if (!latestCycle) return entries;
+
+  const baseTimestamp = latestCycle.completedAt || latestCycle.startedAt;
+  if (latestCycle.depositTxSignature) {
+    entries.push({
+      timestamp: baseTimestamp ? formatTimestamp(new Date(baseTimestamp)) : "--",
+      amount: latestCycle.withdrawnSol ? `Ξ ${Number(latestCycle.withdrawnSol).toFixed(6)}` : "--",
+      status: (latestCycle.status || "").toUpperCase() || "--",
+      txHash: latestCycle.depositTxSignature,
+      explorerUrl: `https://solscan.io/tx/${latestCycle.depositTxSignature}`,
+    });
+  }
+
+  if (Array.isArray(latestCycle.deposits)) {
+    latestCycle.deposits.forEach((deposit) => {
+      entries.push({
+        timestamp: deposit.createdAt ? formatTimestamp(new Date(deposit.createdAt)) : baseTimestamp || "--",
+        amount: deposit.solAmount ? `Ξ ${Number(deposit.solAmount).toFixed(6)}` : "--",
+        status: "DEPOSIT",
+        txHash: deposit.txSignature,
+        explorerUrl: deposit.txSignature ? `https://solscan.io/tx/${deposit.txSignature}` : undefined,
+      });
+    });
+  }
+
+  return entries;
+};
+
+const hydrateFromStatusPayload = (payload = SAMPLE_STATUS_RESPONSE) => {
+  const { service = {}, latestCycle = {}, totals = {} } = payload;
+
+  lbpConsole.updateStatus({
+    sessionId: service.tokenMint ? `MINT-${service.tokenMint.slice(-6)}` : undefined,
+    uptime: service.timeUntilNextCycle ? `NEXT +${service.timeUntilNextCycle}` : undefined,
+    statusLabel: service.isRunning ? "ONLINE" : "OFFLINE",
+    online: Boolean(service.isRunning),
+  });
+
+  lbpConsole.updateFunds({
+    total: totals.totalSolDeposited ? `Ξ ${Number(totals.totalSolDeposited).toFixed(6)}` : undefined,
+    creator: latestCycle.withdrawnSol ? `Ξ ${Number(latestCycle.withdrawnSol).toFixed(6)}` : undefined,
+    reserve: latestCycle.solForLp ? `Ξ ${Number(latestCycle.solForLp).toFixed(6)}` : undefined,
+  });
+
+  lbpConsole.updateNextInjection({
+    windowTimestamp: service.nextCycleTime,
+    amount: latestCycle.solForSwap ? `Ξ ${Number(latestCycle.solForSwap).toFixed(6)}` : undefined,
+    executionMode: `AUTO • ${service.cycleIntervalMinutes || 60}m`,
+  });
+
+  lbpConsole.updateHistory(normalizeHistoryEntries(latestCycle));
+};
+
+const fetchStatusPayload = async () => {
+  try {
+    const response = await fetch("/api/lp-cycle/status", { cache: "no-store" });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return await response.json();
+  } catch (error) {
+    console.warn("Falling back to sample LP status", error);
+    return SAMPLE_STATUS_RESPONSE;
+  }
+};
+
 const lbpConsole = {
   updateStatus: applyStatus,
   updateFunds: applyFunds,
@@ -117,10 +248,12 @@ const lbpConsole = {
 
 window.lbpConsole = lbpConsole;
 
-lbpConsole.updateStatus({ sessionId: "LBP-CTRL-01", uptime: "47d 12h 33m", statusLabel: "ONLINE", online: true });
-lbpConsole.updateFunds({ total: "Ξ 1,245.33", creator: "Ξ 482.10", reserve: "Ξ 613.00" });
-lbpConsole.updateNextInjection({ windowTimestamp: countdownTarget.toISOString(), amount: "Ξ 250.00", executionMode: "AUTO" });
-lbpConsole.updateHistory();
+const bootstrapConsole = async () => {
+  const payload = await fetchStatusPayload();
+  hydrateFromStatusPayload(payload);
+};
+
+bootstrapConsole();
 
 const root = document.documentElement;
 const updateGlow = (x, y) => {
