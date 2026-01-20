@@ -28,32 +28,53 @@
 
 <p class="tool-desc">Liquidity Pool Bootstrapping Terminal</p>
 
-<pre class="status-bar">
-┌──────────────────────────────────────────────────────────────────────────────┐
-│  SESSION: <span id="session-id">LBP-CTRL-01</span>  │  STATUS: <span class="blink" id="status-indicator">■</span> <span id="status-label">ONLINE</span>  │  UPTIME: <span id="uptime">47d 12h 33m</span>       │
-└──────────────────────────────────────────────────────────────────────────────┘
-</pre>
-
-<pre class="ticker">
-<span>Ξ FEES CAPTURE ONLINE • CREATOR REWARD STREAM ACTIVE • NEXT INJECTION IN VIEW • ALL EVENTS MIRRORED ON-CHAIN • Ξ FEES CAPTURE ONLINE • CREATOR REWARD STREAM ACTIVE • NEXT INJECTION IN VIEW • ALL EVENTS MIRRORED ON-CHAIN •</span>
-</pre>
-
-<div class="panel-row">
-  <pre class="panel-block funds-panel">
-FUNDS MATRIX
+<div class="panel-row ascii-scroll" data-ascii-scroll>
+  <pre class="panel-block service-panel">
+SERVICE LINK
 ──────────────────────────────────────
-TOTAL AVAILABLE    ▸ <span class="highlight" id="funds-total">Ξ 1,245.33</span>
-CREATOR FEES       ▸ <span id="funds-creator">Ξ 482.10</span>
-LIQUIDITY RESERVE  ▸ <span id="funds-reserve">Ξ 613.00</span>
+TOKEN MINT        ▸ <span id="service-mint">7HcZ...pump</span>
+POOL ADDRESS      ▸ <span id="service-pool">8xKX...aB</span>
+INTERVAL          ▸ <span id="service-interval">60 min</span>
+NEXT CYCLE ETA    ▸ <span id="service-next-cycle">32m 15s</span>
+  </pre>
+
+  <pre class="panel-block funds-panel">
+DEPOSIT TOTALS
+──────────────────────────────────────
+SOL DEPOSITED      ▸ <span class="highlight" id="totals-sol-deposited">Ξ 14.172839</span>
+TOKENS DEPOSITED   ▸ <span id="totals-tokens-deposited">14,500,000,000</span>
+LP TOKENS DEPOSITED▸ <span id="totals-lp-deposited">0</span>
   </pre>
 
   <pre class="panel-block next-panel">
-NEXT INJECTION
+NEXT CYCLE TRACKER
 ──────────────────────────────────────
-WINDOW           ▸ <span id="next-timestamp">2026-01-22 14:30 UTC</span>
+SCHEDULED FOR    ▸ <span id="next-timestamp">2026-01-22 14:30 UTC</span>
 COUNTDOWN        ▸ <span id="countdown" class="countdown">██:██:██</span>
-AMOUNT           ▸ <span id="next-amount">Ξ 250.00</span>
-EXECUTION MODE   ▸ <span id="execution-mode">AUTO</span>
+TIME UNTIL       ▸ <span id="next-time-until">32m 15s</span>
+INTERVAL / STATE ▸ <span id="next-interval">60 min</span> • <span id="next-service-state">RUNNING</span>
+  </pre>
+</div>
+
+<div class="panel-row ascii-scroll" data-ascii-scroll>
+  <pre class="panel-block cycle-panel">
+LATEST CYCLE
+──────────────────────────────────────
+CYCLE #           ▸ <span id="latest-cycle-number">12</span>
+STATUS            ▸ <span id="latest-cycle-status">COMPLETED</span>
+WITHDRAWN (SOL)   ▸ <span id="latest-withdrawn">Ξ 2.456789</span>
+SWAP / LP (Ξ)     ▸ <span id="latest-swap">Ξ 1.203394</span> / <span id="latest-lp">Ξ 1.203394</span>
+SWAP TX           ▸ <span id="latest-swap-tx">5KJ8...cD</span>
+DEPOSIT TX        ▸ <span id="latest-deposit-tx">3mP6...7yZ</span>
+  </pre>
+
+  <pre class="panel-block totals-panel">
+AGGREGATES
+──────────────────────────────────────
+TOTAL CYCLES      ▸ <span id="totals-cycles">12</span>
+TOTAL SOL MOVED   ▸ <span id="totals-sol">Ξ 28.345678</span>
+TOKENS BOUGHT     ▸ <span id="totals-tokens">14,500,000,000</span>
+TOTAL DEPOSITS    ▸ <span id="totals-deposits">12</span>
   </pre>
 </div>
 

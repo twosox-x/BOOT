@@ -5,25 +5,6 @@ This UI is ready to receive real data from the backend via the global `window.lb
 ## Data contract
 
 ```ts
-window.lbpConsole.updateStatus({
-  sessionId?: string,
-  uptime?: string,
-  statusLabel?: string,
-  online?: boolean,
-});
-
-window.lbpConsole.updateFunds({
-  total?: string,
-  creator?: string,
-  reserve?: string,
-});
-
-window.lbpConsole.updateNextInjection({
-  windowTimestamp?: string | number | Date, // ISO timestamp preferred
-  amount?: string,
-  executionMode?: string,
-});
-
 window.lbpConsole.updateHistory([
   {
     timestamp: string,
@@ -33,6 +14,50 @@ window.lbpConsole.updateHistory([
     explorerUrl?: string,
   },
 ]);
+
+window.lbpConsole.updateStatusBar({
+  tokenMint?: string,
+  poolAddress?: string,
+  isRunning?: boolean,
+  timeUntilNextCycle?: string,
+});
+
+window.lbpConsole.updateService({
+  tokenMint?: string,
+  poolAddress?: string,
+  cycleIntervalMinutes?: number,
+  timeUntilNextCycle?: string,
+});
+
+window.lbpConsole.updateDepositTotals({
+  totalSolDeposited?: number | string,
+  totalTokensDeposited?: number | string,
+  totalLpTokensDeposited?: number | string,
+});
+
+window.lbpConsole.updateNextCycle({
+  nextCycleTime?: string | number | Date,
+  timeUntilNextCycle?: string,
+  cycleIntervalMinutes?: number,
+  isRunning?: boolean,
+});
+
+window.lbpConsole.updateLatestCycle({
+  cycleNumber?: number,
+  status?: string,
+  withdrawnSol?: number | string,
+  solForSwap?: number | string,
+  solForLp?: number | string,
+  swapTxSignature?: string,
+  depositTxSignature?: string,
+});
+
+window.lbpConsole.updateTotals({
+  totalCycles?: number,
+  totalWithdrawnSol?: number | string,
+  totalTokensBought?: number | string,
+  totalDeposits?: number,
+});
 ```
 
 All fields are optional partial updates. Timestamps should be ISO strings so the countdown stays accurate.
@@ -45,28 +70,22 @@ The page sets default placeholder values and immediately starts the countdown lo
 fetch("/api/lbp-cycle/state")
   .then((res) => res.json())
   .then((data) => {
-    const {
-      sessionId,
-      uptime,
-      status,
-      online,
-      funds,
-      nextInjection,
-      history,
-    } = data;
-
-    lbpConsole.updateStatus({
-      sessionId,
-      uptime,
-      statusLabel: status,
-      online,
+    lbpConsole.updateStatusBar(data.service);
+    lbpConsole.updateService(data.service);
+    lbpConsole.updateDepositTotals(data.totals);
+    lbpConsole.updateNextCycle({
+      nextCycleTime: data.service.nextCycleTime,
+      timeUntilNextCycle: data.service.timeUntilNextCycle,
+      cycleIntervalMinutes: data.service.cycleIntervalMinutes,
+      isRunning: data.service.isRunning,
     });
-
-    lbpConsole.updateFunds(funds);
-    lbpConsole.updateNextInjection(nextInjection);
+    lbpConsole.updateLatestCycle(data.latestCycle);
+    lbpConsole.updateTotals(data.totals);
     lbpConsole.updateHistory(history);
   });
 ```
+
+On load, the UI automatically calls `/api/lp-cycle/status` (no caching). If the request fails, it falls back to the sample payload defined in `script.js` so the terminal always displays meaningful data. Replace the fetch URL or shape as needed, but preserve the helper calls so every panel stays in sync.
 
 ## History rendering notes
 
@@ -76,8 +95,8 @@ fetch("/api/lbp-cycle/state")
 
 ## Styling hooks
 
-- `#status-indicator` toggles the `offline` class when `online` is false (optional CSS can use this).
 - Countdown gains the `active` class when the target time elapses (`EXECUTING`).
 - Cursor highlight variables (`--glow-*`) already respond to pointer position; no backend work required.
+- Status, service, deposit totals, latest cycle, and aggregates panels read directly from the helper methods above.
 
 Feel free to connect your preferred state manager or event bus—just ensure the helper is invoked on every update. The UI is otherwise static and requires no additional build tooling.

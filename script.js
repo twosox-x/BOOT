@@ -1,15 +1,31 @@
 const countdownEl = document.getElementById("countdown");
 const nextTimestampEl = document.getElementById("next-timestamp");
-const sessionIdEl = document.getElementById("session-id");
-const statusIndicatorEl = document.getElementById("status-indicator");
-const statusLabelEl = document.getElementById("status-label");
-const uptimeEl = document.getElementById("uptime");
-const fundsTotalEl = document.getElementById("funds-total");
-const fundsCreatorEl = document.getElementById("funds-creator");
-const fundsReserveEl = document.getElementById("funds-reserve");
-const nextAmountEl = document.getElementById("next-amount");
-const executionModeEl = document.getElementById("execution-mode");
 const historyLogEl = document.getElementById("history-log");
+const statusMintEl = document.getElementById("status-mint");
+const statusPoolEl = document.getElementById("status-pool");
+const statusStateEl = document.getElementById("status-state");
+const statusEtaEl = document.getElementById("status-eta");
+const serviceMintEl = document.getElementById("service-mint");
+const servicePoolEl = document.getElementById("service-pool");
+const serviceIntervalEl = document.getElementById("service-interval");
+const serviceNextCycleEl = document.getElementById("service-next-cycle");
+const nextTimeUntilEl = document.getElementById("next-time-until");
+const nextIntervalEl = document.getElementById("next-interval");
+const nextServiceStateEl = document.getElementById("next-service-state");
+const latestCycleNumberEl = document.getElementById("latest-cycle-number");
+const latestCycleStatusEl = document.getElementById("latest-cycle-status");
+const latestWithdrawnEl = document.getElementById("latest-withdrawn");
+const latestSwapEl = document.getElementById("latest-swap");
+const latestLpEl = document.getElementById("latest-lp");
+const latestSwapTxEl = document.getElementById("latest-swap-tx");
+const latestDepositTxEl = document.getElementById("latest-deposit-tx");
+const totalsCyclesEl = document.getElementById("totals-cycles");
+const totalsSolEl = document.getElementById("totals-sol");
+const totalsTokensEl = document.getElementById("totals-tokens");
+const totalsDepositsEl = document.getElementById("totals-deposits");
+const totalsSolDepositedEl = document.getElementById("totals-sol-deposited");
+const totalsTokensDepositedEl = document.getElementById("totals-tokens-deposited");
+const totalsLpDepositedEl = document.getElementById("totals-lp-deposited");
 
 let countdownTarget = new Date("2026-01-22T14:30:00Z");
 
@@ -81,6 +97,12 @@ const SAMPLE_STATUS_RESPONSE = {
 const formatTimestamp = (date) =>
   date.toISOString().replace("T", " ").replace(".000Z", " UTC");
 
+const formatAbbrev = (value = "", head = 4, tail = 3) => {
+  if (!value) return "--";
+  if (value.length <= head + tail) return value;
+  return `${value.slice(0, head)}...${value.slice(-tail)}`;
+};
+
 const setCountdownTarget = (input) => {
   if (!input) return;
   const newTarget = new Date(input);
@@ -148,28 +170,66 @@ const buildHistoryTable = (entries = []) => {
   ].join("\n");
 };
 
-const applyStatus = ({ sessionId, uptime, statusLabel = "ONLINE", online = true } = {}) => {
-  if (sessionId) sessionIdEl.textContent = sessionId;
-  if (uptime) uptimeEl.textContent = uptime;
-  statusLabelEl.textContent = statusLabel;
-  statusIndicatorEl.textContent = online ? "■" : "□";
-  statusIndicatorEl.classList.toggle("offline", !online);
+const applyStatusBar = ({ tokenMint, poolAddress, isRunning, timeUntilNextCycle } = {}) => {
+  if (tokenMint) statusMintEl.textContent = formatAbbrev(tokenMint, 4, 4);
+  if (poolAddress) statusPoolEl.textContent = formatAbbrev(poolAddress, 4, 4);
+  if (typeof isRunning !== "undefined") statusStateEl.textContent = isRunning ? "RUNNING" : "PAUSED";
+  if (timeUntilNextCycle) statusEtaEl.textContent = timeUntilNextCycle;
 };
 
-const applyFunds = ({ total, creator, reserve } = {}) => {
-  if (typeof total !== "undefined") fundsTotalEl.textContent = total;
-  if (typeof creator !== "undefined") fundsCreatorEl.textContent = creator;
-  if (typeof reserve !== "undefined") fundsReserveEl.textContent = reserve;
+const applyDepositTotals = ({ totalSolDeposited, totalTokensDeposited, totalLpTokensDeposited } = {}) => {
+  if (typeof totalSolDeposited !== "undefined") {
+    totalsSolDepositedEl.textContent = `Ξ ${Number(totalSolDeposited).toFixed(6)}`;
+  }
+  if (typeof totalTokensDeposited !== "undefined") {
+    totalsTokensDepositedEl.textContent = Number(totalTokensDeposited).toLocaleString();
+  }
+  if (typeof totalLpTokensDeposited !== "undefined") {
+    totalsLpDepositedEl.textContent = Number(totalLpTokensDeposited).toLocaleString();
+  }
 };
 
-const applyNextInjection = ({ windowTimestamp, amount, executionMode } = {}) => {
-  if (windowTimestamp) setCountdownTarget(windowTimestamp);
-  if (typeof amount !== "undefined") nextAmountEl.textContent = amount;
-  if (executionMode) executionModeEl.textContent = executionMode;
+const applyNextCycleTracker = ({ nextCycleTime, timeUntilNextCycle, cycleIntervalMinutes, isRunning } = {}) => {
+  if (nextCycleTime) setCountdownTarget(nextCycleTime);
+  if (timeUntilNextCycle) nextTimeUntilEl.textContent = timeUntilNextCycle;
+  if (cycleIntervalMinutes) nextIntervalEl.textContent = `${cycleIntervalMinutes} min`;
+  if (typeof isRunning !== "undefined") nextServiceStateEl.textContent = isRunning ? "RUNNING" : "PAUSED";
 };
 
 const applyHistory = (entries) => {
   historyLogEl.innerHTML = buildHistoryTable(entries);
+};
+
+const applyService = ({ tokenMint, poolAddress, cycleIntervalMinutes, timeUntilNextCycle } = {}) => {
+  if (tokenMint) serviceMintEl.textContent = formatAbbrev(tokenMint, 4, 4);
+  if (poolAddress) servicePoolEl.textContent = formatAbbrev(poolAddress, 4, 4);
+  if (cycleIntervalMinutes) serviceIntervalEl.textContent = `${cycleIntervalMinutes} min`;
+  if (timeUntilNextCycle) serviceNextCycleEl.textContent = timeUntilNextCycle;
+};
+
+const applyLatestCycle = ({
+  cycleNumber,
+  status,
+  withdrawnSol,
+  solForSwap,
+  solForLp,
+  swapTxSignature,
+  depositTxSignature,
+} = {}) => {
+  if (typeof cycleNumber !== "undefined") latestCycleNumberEl.textContent = cycleNumber;
+  if (status) latestCycleStatusEl.textContent = status.toUpperCase();
+  if (typeof withdrawnSol !== "undefined") latestWithdrawnEl.textContent = `Ξ ${Number(withdrawnSol).toFixed(6)}`;
+  if (typeof solForSwap !== "undefined") latestSwapEl.textContent = `Ξ ${Number(solForSwap).toFixed(6)}`;
+  if (typeof solForLp !== "undefined") latestLpEl.textContent = `Ξ ${Number(solForLp).toFixed(6)}`;
+  if (swapTxSignature) latestSwapTxEl.textContent = formatAbbrev(swapTxSignature, 4, 3);
+  if (depositTxSignature) latestDepositTxEl.textContent = formatAbbrev(depositTxSignature, 4, 3);
+};
+
+const applyTotals = ({ totalCycles, totalWithdrawnSol, totalTokensBought, totalDeposits } = {}) => {
+  if (typeof totalCycles !== "undefined") totalsCyclesEl.textContent = totalCycles;
+  if (typeof totalWithdrawnSol !== "undefined") totalsSolEl.textContent = `Ξ ${Number(totalWithdrawnSol).toFixed(6)}`;
+  if (typeof totalTokensBought !== "undefined") totalsTokensEl.textContent = Number(totalTokensBought).toLocaleString();
+  if (typeof totalDeposits !== "undefined") totalsDepositsEl.textContent = totalDeposits;
 };
 
 const normalizeHistoryEntries = (latestCycle = {}) => {
@@ -205,26 +265,24 @@ const normalizeHistoryEntries = (latestCycle = {}) => {
 const hydrateFromStatusPayload = (payload = SAMPLE_STATUS_RESPONSE) => {
   const { service = {}, latestCycle = {}, totals = {} } = payload;
 
-  lbpConsole.updateStatus({
-    sessionId: service.tokenMint ? `MINT-${service.tokenMint.slice(-6)}` : undefined,
-    uptime: service.timeUntilNextCycle ? `NEXT +${service.timeUntilNextCycle}` : undefined,
-    statusLabel: service.isRunning ? "ONLINE" : "OFFLINE",
-    online: Boolean(service.isRunning),
+  applyStatusBar(service);
+  applyService(service);
+  applyDepositTotals(totals);
+  applyNextCycleTracker({
+    nextCycleTime: service.nextCycleTime,
+    timeUntilNextCycle: service.timeUntilNextCycle,
+    cycleIntervalMinutes: service.cycleIntervalMinutes,
+    isRunning: service.isRunning,
+  });
+  applyLatestCycle(latestCycle);
+  applyTotals({
+    totalCycles: totals.totalCycles,
+    totalWithdrawnSol: totals.totalWithdrawnSol,
+    totalTokensBought: totals.totalTokensBought,
+    totalDeposits: totals.totalDeposits,
   });
 
-  lbpConsole.updateFunds({
-    total: totals.totalSolDeposited ? `Ξ ${Number(totals.totalSolDeposited).toFixed(6)}` : undefined,
-    creator: latestCycle.withdrawnSol ? `Ξ ${Number(latestCycle.withdrawnSol).toFixed(6)}` : undefined,
-    reserve: latestCycle.solForLp ? `Ξ ${Number(latestCycle.solForLp).toFixed(6)}` : undefined,
-  });
-
-  lbpConsole.updateNextInjection({
-    windowTimestamp: service.nextCycleTime,
-    amount: latestCycle.solForSwap ? `Ξ ${Number(latestCycle.solForSwap).toFixed(6)}` : undefined,
-    executionMode: `AUTO • ${service.cycleIntervalMinutes || 60}m`,
-  });
-
-  lbpConsole.updateHistory(normalizeHistoryEntries(latestCycle));
+  applyHistory(normalizeHistoryEntries(latestCycle));
 };
 
 const fetchStatusPayload = async () => {
@@ -239,9 +297,12 @@ const fetchStatusPayload = async () => {
 };
 
 const lbpConsole = {
-  updateStatus: applyStatus,
-  updateFunds: applyFunds,
-  updateNextInjection: applyNextInjection,
+  updateStatusBar: applyStatusBar,
+  updateService: applyService,
+  updateDepositTotals: applyDepositTotals,
+  updateNextCycle: applyNextCycleTracker,
+  updateLatestCycle: applyLatestCycle,
+  updateTotals: applyTotals,
   updateHistory: applyHistory,
   setCountdownTarget,
 };
